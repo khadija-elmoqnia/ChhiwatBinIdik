@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, ActivityIndicator, StyleSheet, ScrollView } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 
@@ -41,6 +41,7 @@ const Commandes = () => {
   }
 
   return (
+    <ScrollView contentContainerStyle={styles.scrollViewContent}>
     <View style={styles.container}>
       {orders.length === 0 ? (
         <Text style={styles.emptyText}>Aucune commande trouvée.</Text>
@@ -64,6 +65,7 @@ const Commandes = () => {
         </View>
       )}
     </View>
+    </ScrollView>
   );
 };
 

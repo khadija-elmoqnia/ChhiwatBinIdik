@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { Button, View, StyleSheet, Text, TextInput, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { Button, View, StyleSheet, Text, TextInput, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { CardField, useStripe } from '@stripe/stripe-react-native';
 import functions from '@react-native-firebase/functions';
 import firestore from '@react-native-firebase/firestore';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import backIcon2 from './../../assets/images/backk.png';
+import auth from '@react-native-firebase/auth';
 
 const PaymentScreen = () => {
   const { confirmPayment } = useStripe();
   const [cardDetails, setCardDetails] = useState(null);
   const [loading, setLoading] = useState(false);
   const [clientSecret, setClientSecret] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('');
-  const [address, setAddress] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState(''); // Default payment method is empty
+  const [address, setAddress] = useState(''); // State to store the address
+  const [deliveryMethod, setDeliveryMethod] = useState(''); // State to store the delivery method
   const navigation = useNavigation();
   const route = useRoute();
   const { amount, items, userId } = route.params;
@@ -42,19 +45,9 @@ const PaymentScreen = () => {
   };
 
   const handlePayment = async () => {
-    if (!paymentMethod) {
-      console.log('Please select a payment method.');
-      return;
-    }
-
-    if (paymentMethod === 'delivery' && !address) {
-      console.log('Please enter an address for delivery.');
-      return;
-    }
-
-    setLoading(true);
-
     try {
+      setLoading(true);
+
       if (paymentMethod === 'card') {
         if (!cardDetails?.complete) {
           console.log('Please enter complete card details.');
@@ -62,6 +55,7 @@ const PaymentScreen = () => {
           return;
         }
 
+        console.log('Client Secret:', clientSecret);
         if (!clientSecret) {
           throw new Error('Client secret is empty');
         }
@@ -72,50 +66,60 @@ const PaymentScreen = () => {
 
         if (error) {
           console.log('Payment failed:', error.message);
-          setLoading(false);
-          return;
         } else {
           console.log('Payment successful:', paymentIntent);
         }
       } else if (paymentMethod === 'delivery') {
-        await handlePaymentOnDelivery();
+        await handlePaymentOnDelivery(); // Call function for payment on delivery
       }
 
-      const orderId = await createOrder(items, userId, amount, address);
+      const orderId = await createOrder(items, userId, amount, address, deliveryMethod); // Pass the address and delivery method to createOrder
       if (!orderId) {
         throw new Error('Erreur lors de la création de la commande');
       }
 
       await firestore().collection('commandes').doc(orderId).update({
-        statusFournisseur: 'Nouvelle',
-        address,
+        statusClient: 'En cours de traitement',
+        statusFournisseur: 'Nouvelle commande ',
+        address, // Save the address in the order document
+        deliveryMethod, // Save the delivery method in the order document
       });
 
-      setLoading(false);
       navigation.navigate('PaymentSuccessScreen');
     } catch (error) {
       console.error('Error during payment:', error);
+    } finally {
       setLoading(false);
     }
   };
 
   const handlePaymentOnDelivery = async () => {
-    // Handle payment on delivery logic
+    try {
+      setLoading(true);
+
+      // Handle payment on delivery logic
+      // For example, you can update the order status or any other relevant action
+    } catch (error) {
+      console.error('Error during payment on delivery:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const createOrder = async (items, userId, totalPrice, address) => {
+  const createOrder = async (items, userId, totalPrice, address, deliveryMethod) => {
     try {
       const orderDetails = {
         userId,
         items: items.map(item => ({
           ...item,
           fournisseurId: item.fournisseurId || 'unknown',
-          imageURL: item.imageURL || 'unknown',
-          averageRating: item.averageRating || 0,
+          imageURL: item.imageURL || 'unknown', // Include imageURL here
+          averageRating: item.averageRating || 0, // Include averageRating here
         })),
         totalPrice,
         createdAt: firestore.FieldValue.serverTimestamp(),
         address,
+        deliveryMethod,
       };
 
       const orderRef = await firestore().collection('commandes').add(orderDetails);
@@ -127,93 +131,181 @@ const PaymentScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Paiement</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Adresse de livraison"
-        onChangeText={setAddress}
-        value={address}
-      />
-      <TouchableOpacity
-        style={[styles.button, paymentMethod === 'delivery' && styles.buttonActive]}
-        onPress={() => setPaymentMethod('delivery')}
-        disabled={loading}
-      >
-        <Text style={styles.buttonText}>Payer à la livraison</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={[styles.button, paymentMethod === 'card' && styles.buttonActive]}
-        onPress={() => setPaymentMethod('card')}
-        disabled={loading}
-      >
-        <Text style={styles.buttonText}>Payer par carte</Text>
-      </TouchableOpacity>
-      {paymentMethod === 'card' && (
-        <>
-          <CardField
-            postalCodeEnabled={false}
-            placeholder={{
-              number: '4242 4242 4242 4242',
-            }}
-            cardStyle={{
-              backgroundColor: '#FFFFFF',
-              textColor: '#000000',
-            }}
-            style={styles.cardField}
-            onCardChange={setCardDetails}
-          />
-          <TouchableOpacity style={styles.button} onPress={handlePayment} disabled={loading}>
-            <Text style={styles.buttonText}>Valider</Text>
-          </TouchableOpacity>
-        </>
-      )}
-      {loading && <ActivityIndicator size="large" color="#ff6347" />}
-    </View>
+    <ScrollView contentContainerStyle={styles.scrollViewContent}>
+      <View style={styles.container}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Image source={backIcon2} style={styles.backIcon} />
+        </TouchableOpacity>
+        <View>
+          <Text style={styles.header1}>Paiement</Text>
+        </View>
+        <Text style={styles.title}>Méthode de livraison</Text>
+        <TouchableOpacity
+          style={[styles.deliveryOption, deliveryMethod === 'home' && styles.selectedOption]}
+          onPress={() => setDeliveryMethod('home')}
+          disabled={loading}
+        >
+          <Image source={require('./../../assets/images/homee.png')} style={styles.icon} />
+          <Text style={styles.optionText}>Livraison à domicile</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.deliveryOption, deliveryMethod === 'pickup' && styles.selectedOption]}
+          onPress={() => setDeliveryMethod('pickup')}
+          disabled={loading}
+        >
+          <Image source={require('./../../assets/images/pickup.png')} style={styles.icon} />
+          <Text style={styles.optionText}>Retrait en point relais</Text>
+        </TouchableOpacity>
+        {deliveryMethod && (
+          <>
+            <Text style={styles.title}>Méthode de paiment</Text>
+            <TouchableOpacity
+              style={[styles.paymentOption, paymentMethod === 'delivery' && styles.selectedOption]}
+              onPress={() => setPaymentMethod('delivery')}
+              disabled={loading}
+            >
+              <Image source={require('./../../assets/images/cash.png')} style={styles.icon} />
+              <Text style={styles.optionText}>Paiment à la livraison</Text>
+            </TouchableOpacity>
+            {paymentMethod === 'delivery' && (
+              <TextInput
+                style={styles.input}
+                placeholder="Adresse de livraison"
+                onChangeText={setAddress}
+                value={address}
+              />
+            )}
+            <TouchableOpacity
+              style={[styles.paymentOption, paymentMethod === 'card' && styles.selectedOption]}
+              onPress={() => setPaymentMethod('card')}
+              disabled={loading}
+            >
+              <Image source={require('./../../assets/images/creditcard.png')} style={styles.icon} />
+              <Text style={styles.optionText}>Paiment par carte</Text>
+            </TouchableOpacity>
+            {paymentMethod === 'card' && (
+              <>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Adresse de livraison"
+                  onChangeText={setAddress}
+                  value={address}
+                />
+                <Text style={styles.title}>Informations sur la carte</Text>
+                <CardField
+                  postalCodeEnabled={false}
+                  placeholder={{
+                    number: '4242 4242 4242 4242',
+                  }}
+                  cardStyle={{
+                    backgroundColor: 'white',
+                    textColor: 'black',
+                  }}
+                  style={styles.cardField}
+                  onCardChange={setCardDetails}
+                />
+              </>
+            )}
+          </>
+        )}
+        <TouchableOpacity
+          style={[styles.button, (loading || !paymentMethod || !deliveryMethod) && styles.disabledButton]}
+          onPress={handlePayment}
+          disabled={loading || !paymentMethod || !deliveryMethod}
+        >
+          <Text style={styles.buttonText}>Valider</Text>
+        </TouchableOpacity>
+        {loading && <Text>Loading...</Text>}
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     padding: 20,
-    backgroundColor: '#f5f5f5',
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontFamily: 'Raleway-Bold',
+    color: 'black',
     marginBottom: 20,
-    textAlign: 'center',
-    color: '#ff6347',
   },
-  input: {
-    height: 50,
-    borderColor: '#ddd',
-    borderWidth: 1,
-    marginBottom: 20,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-    backgroundColor: '#fff',
-  },
-  button: {
-    height: 50,
-    backgroundColor: '#ff6347',
-    justifyContent: 'center',
+  deliveryOption: {
+    flexDirection: 'row',
     alignItems: 'center',
+    padding: 10,
+    borderWidth: 1,
+    borderColor: 'gray',
     borderRadius: 5,
     marginBottom: 10,
   },
-  buttonActive: {
-    backgroundColor: '#d9534f',
+  paymentOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    borderWidth: 1,
+    borderColor: 'gray',
+    borderRadius: 5,
+    marginBottom: 10,
   },
-  buttonText: {
-    color: '#fff',
+  selectedOption: {
+    borderColor: '#FF4B3A',
+    backgroundColor: '#f2e0d3',
+  },
+  icon: {
+    width: 50,
+    height: 50,
+    marginRight: 10,
+  },
+  optionText: {
     fontSize: 16,
-    fontWeight: 'bold',
   },
   cardField: {
     height: 50,
     marginVertical: 20,
+    marginTop: -5,
+  },
+  input: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 20,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+  },
+  button: {
+    backgroundColor: '#FF4B3A',
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 30,
+  },
+  disabledButton: {
+    backgroundColor: '#FF4B3A80', // Slightly transparent when disabled
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 20,
+  },
+  backButton: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    zIndex: 1,
+  },
+  backIcon: {
+    width: 24,
+    height: 24,
+  },
+  header1: {
+    fontSize: 20,
+    fontFamily: 'Raleway-Bold',
+    color: 'black',
+    marginBottom: 20,
+    marginTop: 0,
+    textAlign: 'center',
   },
 });
 

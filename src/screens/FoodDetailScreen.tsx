@@ -61,46 +61,27 @@ setLoading(false);
 fetchInitialData();
   }, [itemKey]);
 
-        const updateCartItemQuantity = async (newQuantity) => {
-        try {
-        const user = auth().currentUser;
-      if (user) {
-        const cartItemRef = firestore()
-          .collection('carts')
-          .doc(user.uid)
-          .collection('items')
-          .doc(itemKey);
 
-await cartItemRef.set(
-{ quantity: newQuantity },
-        { merge: true }
-        );
+        const updateFoodQuantity = (newQuantity) => {
+            setQuantity(newQuantity);
+        };
 
-await axios.post(
-          `http://192.168.1.138:8080/api/carts/${user.uid}/${itemKey}?quantity=${newQuantity}`,
-{}
-        );
 
-setQuantity(newQuantity);  // Update local state after backend update
-      } else {
-              console.error('Vous devez être connecté pour mettre à jour la quantité.');
-      }
-              } catch (error) {
-        console.error('Erreur lors de la mise à jour de la quantité du panier:', error);
-    }
-            };
+          const handleIncreaseQuantity = () => {
+              const newQuantity = quantity + 1;
+              updateFoodQuantity(newQuantity);
 
-            const handleIncreaseQuantity = () => {
-        const newQuantity = quantity + 1;
-updateCartItemQuantity(newQuantity);
-  };
+
+          };
 
           const handleDecreaseQuantity = () => {
-        if (quantity > 1) {
-        const newQuantity = quantity - 1;
-updateCartItemQuantity(newQuantity);
-    }
-            };
+              if (quantity > 1) {
+                  const newQuantity = quantity - 1;
+                  updateFoodQuantity(newQuantity);
+
+
+              }
+          };
 
             const handleAddToCart = async () => {
         try {
