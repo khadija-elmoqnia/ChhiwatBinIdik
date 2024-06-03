@@ -4,7 +4,7 @@ import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import back from './../../assets/images/back.png';
 import commandesIcon from './../../assets/images/commandes.png';
-import offresIcon from './../../assets/images/offres.png';
+
 import politiquesIcon from './../../assets/images/politiques.png';
 import aproposIcon from './../../assets/images/apropos.png';
 import deconIcon from './../../assets/images/decon.png';
@@ -68,10 +68,6 @@ const DashboardScreen = ({ onClose, navigation }) => {
         <TouchableOpacity style={styles.menuItem} onPress={() => handleNavigation('Commandes')}>
           <Image source={commandesIcon} style={styles.menuIconComman} />
           <Text style={styles.menuText}>Commandes</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem} onPress={() => handleNavigation('OffresEtPromos')}>
-          <Image source={offresIcon} style={styles.menuIcon} />
-          <Text style={styles.menuText}>Offres et promos</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={() => handleNavigation('Politiques')}>
           <Image source={politiquesIcon} style={styles.menuIcon} />
