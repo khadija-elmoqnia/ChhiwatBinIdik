@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { fetchFavorites, fetchPlats } from '../components/Favorites'; // Ensure the path is correct
+import { fetchFavorites, fetchPlats } from '../components/Favorites';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
-import FoodCardClient from '../components/FoodCardClient'; // Ensure the path is correct
-import backIcon2 from './../../assets/images/backk.png'; // Import the back icon
+import FoodCardClientOffFourn from '../components/FoodCardClientOffFourn';
+import backIcon2 from './../../assets/images/backk.png';
 
 const FavoritesScreen = ({ navigation }) => {
   const [favorites, setFavorites] = useState([]);
@@ -86,12 +86,10 @@ const FavoritesScreen = ({ navigation }) => {
         data={filteredFavorites}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
-          <FoodCardClient
+          <FoodCardClientOffFourn
             image={item.imageURL}
             title={item.title}
             price={item.price}
-            fournisseur={item.fournisseur}
-            fournisseurId={item.fournisseurId}
             itemKey={item.id}
           />
         )}

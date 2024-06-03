@@ -4,17 +4,11 @@ import MyText from './MyText';
 import { useNavigation } from '@react-navigation/native';
 import AverageRating from './AverageRating';
 
-function FoodCardClient({ image, title, price, fournisseur, fournisseurId, itemKey }) {
+function FoodCardClientOffFourn({ image, title, price, itemKey }) {
     const navigation = useNavigation();
 
     const handlePress = () => {
         navigation.navigate('FoodDetail', { itemKey });
-    };
-
-    const handleFournisseurPress = () => {
-        console.log('fournisseurId:', fournisseurId); // Debug log
-        console.log('fournisseurName:', fournisseur); // Debug log
-        navigation.navigate('Fournisseur', { fournisseurId, fournisseurName: fournisseur });
     };
 
     return (
@@ -25,9 +19,6 @@ function FoodCardClient({ image, title, price, fournisseur, fournisseurId, itemK
                     <MyText numberOfLines={1} style={styles.title}>
                         {title}
                     </MyText>
-                    <TouchableOpacity onPress={handleFournisseurPress}>
-                        <MyText style={styles.fournisseur}>Chef: {fournisseur}</MyText>
-                    </TouchableOpacity>
                 </View>
                 <View style={styles.rightTextContainer}>
                     <MyText style={styles.price}>{price} dh</MyText>
@@ -75,15 +66,9 @@ const styles = StyleSheet.create({
     price: {
         color: 'white',
         fontSize: 23,
-        marginVertical: -2,
+        marginVertical: -3,
         fontFamily: 'Raleway-Bold',
-    },
-    fournisseur: {
-        color: 'white',
-        fontSize: 14,
-        fontFamily: 'Raleway-Bold',
-        marginTop: 2,
     },
 });
 
-export default FoodCardClient;
+export default FoodCardClientOffFourn;

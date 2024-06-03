@@ -1,53 +1,41 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, TextInput, Image } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { StyleSheet, View, TextInput, Image, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import search from './../../assets/images/search.png';
-import firestore from '@react-native-firebase/firestore';
 
-function Search({ onSearch }) {
+function Search({ searchInputRef }) {
   const [searchQuery, setSearchQuery] = useState('');
+  const navigation = useNavigation();
 
-  const handleSearch = async () => {
-    // Interroger Firestore pour rechercher des plats correspondant à la requête de recherche
-    try {
-      const querySnapshot = await firestore()
-        .collection('plats')
-        .where('title', '>=', searchQuery)
-        .where('title', '<=', searchQuery + '\uf8ff') // Utilisation de la technique de préfixe-suffixe pour rechercher des résultats proches
-        .get();
+  const handleSearch = () => {
+    navigation.navigate('SearchResultsPage', { searchQuery });
+  };
 
-      // Convertir les résultats de la requête en un tableau de plats
-      const results = [];
-      querySnapshot.forEach(documentSnapshot => {
-        results.push(documentSnapshot.data());
-      });
-
-      // Passer les résultats de la recherche à la fonction de rappel fournie par le composant parent
-      if (results.length === 0) {
-        onSearch('Aucun résultat trouvé');
-      } else {
-        onSearch(results);
-      }
-    } catch (error) {
-      console.error('Error searching for plats:', error);
-      onSearch('Erreur lors de la recherche');
+  const handleFocus = () => {
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
     }
+    handleSearch(); // Navigate to SearchResultsPage when the search bar is focused
   };
 
   return (
-    <View style={styles.container}>
-      <Image source={search} style={styles.icon} />
-      <TextInput
-        style={styles.textInput}
-        placeholder="Rechercher un plat"
-        placeholderTextColor="gray"
-        onChangeText={text => setSearchQuery(text)}
-        onSubmitEditing={handleSearch} // Appeler la fonction de recherche lorsque l'utilisateur appuie sur la touche "Entrée"
-      />
-    </View>
+    <TouchableOpacity onPress={handleFocus} style={styles.container}>
+      <View style={styles.innerContainer}>
+        <Image source={search} style={styles.icon} />
+        <TextInput
+          ref={searchInputRef}
+          style={styles.textInput}
+          placeholder="Rechercher un plat"
+          placeholderTextColor="gray"
+          onChangeText={text => setSearchQuery(text)}
+          value={searchQuery}
+          onFocus={handleSearch} // Trigger navigation when the input is focused
+        />
+      </View>
+    </TouchableOpacity>
   );
 }
 
-// Styles pour le composant Search
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
@@ -61,11 +49,15 @@ const styles = StyleSheet.create({
     paddingLeft: 30, // Marge à gauche
     marginBottom: -20, // Marge en bas
   },
+  innerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
   icon: {
     width: 35, // Icon width
     height: 35, // Icon height
     marginRight: 10, // Space between icon and text input
-    marginBottom: 0,
   },
   textInput: {
     flex: 1, // Prendre tout l'espace restant
@@ -73,4 +65,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Search; // Export du composant Search
+export default Search;

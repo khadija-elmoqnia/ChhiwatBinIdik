@@ -384,6 +384,9 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
     },
+    mostOrderedSection:{
+    marginTop:-15,
+    },
     modal: {
         backgroundColor: '#FFFFFF',
         width: Dimensions.get('window').width / 2,
