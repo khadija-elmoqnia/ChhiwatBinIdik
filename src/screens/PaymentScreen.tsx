@@ -79,8 +79,7 @@ const PaymentScreen = () => {
       }
 
       await firestore().collection('commandes').doc(orderId).update({
-        statusClient: 'En cours de traitement',
-        statusFournisseur: 'Nouvelle commande ',
+        statusFournisseur: 'Nouvelle',
         address, // Save the address in the order document
         deliveryMethod, // Save the delivery method in the order document
       });
@@ -96,7 +95,6 @@ const PaymentScreen = () => {
   const handlePaymentOnDelivery = async () => {
     try {
       setLoading(true);
-
       // Handle payment on delivery logic
       // For example, you can update the order status or any other relevant action
     } catch (error) {
@@ -112,14 +110,17 @@ const PaymentScreen = () => {
         userId,
         items: items.map(item => ({
           ...item,
+          itemKey: item.itemKey || `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // Generate a unique id if itemKey does not exist
           fournisseurId: item.fournisseurId || 'unknown',
-          imageURL: item.imageURL || 'unknown', // Include imageURL here
-          averageRating: item.averageRating || 0, // Include averageRating here
+          imageURL: item.imageURL || 'unknown',
+          averageRating: item.averageRating || 0,
         })),
         totalPrice,
         createdAt: firestore.FieldValue.serverTimestamp(),
         address,
         deliveryMethod,
+        statusFournisseur: 'Nouvelle', // Ajouter le champ statusFournisseur ici
+         // Ajouter le champ fournisseurRating avec une valeur null par défaut
       };
 
       const orderRef = await firestore().collection('commandes').add(orderDetails);

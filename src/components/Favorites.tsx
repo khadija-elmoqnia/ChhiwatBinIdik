@@ -10,7 +10,7 @@ export const addFavorite = async (platId) => {
   if (user) {
     try {
       if (platId) {
-        const response = await axios.post('http://192.168.1.138:8080/favorites/add', null, {
+        const response = await axios.post('http://172.20.10.5:8080/favorites/add', null, {
           params: {
             userId: user.uid,
             platId: platId,
@@ -33,7 +33,7 @@ export const removeFavorite = async (platId) => {
   const user = auth().currentUser;
   if (user) {
     try {
-      const response = await axios.delete('http://192.168.1.138:8080/favorites/remove', {
+      const response = await axios.delete('http://172.20.10.5:8080/favorites/remove', {
         params: {
           userId: user.uid,
           platId: platId,
@@ -65,7 +65,7 @@ export const fetchFavorites = async () => {
   const user = auth().currentUser;
   if (!user) return [];
   try {
-    const response = await axios.get('http://192.168.1.138:8080/favorites/fetch', {
+    const response = await axios.get('http://172.20.10.5:8080/favorites/fetch', {
       params: {
         userId: user.uid,
       },

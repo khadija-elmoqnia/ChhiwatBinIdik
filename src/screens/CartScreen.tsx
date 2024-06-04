@@ -16,7 +16,7 @@ function CartScreen({ navigation }) {
         const user = auth().currentUser;
         if (user) {
           const userId = user.uid;
-          const response = await axios.get(`http://192.168.1.138:8080/api/carts/${userId}`);
+          const response = await axios.get(`http://172.20.10.5:8080/api/carts/${userId}`);
           let cartItems = response.data;
 
           // Fetch additional details from Firestore
@@ -58,7 +58,7 @@ function CartScreen({ navigation }) {
 
   const updateCartItemQuantity = async (userId, itemKey, quantity) => {
     try {
-      await axios.post(`http://192.168.1.138:8080/api/carts/${userId}/${itemKey}`, null, { params: { quantity } });
+      await axios.post(`http://172.20.10.5:8080/api/carts/${userId}/${itemKey}`, null, { params: { quantity } });
       const cartItemRef = firestore()
         .collection('carts')
         .doc(userId)
@@ -78,7 +78,7 @@ function CartScreen({ navigation }) {
 
   const handleRemoveItem = async (item) => {
     try {
-      const response = await axios.delete(`http://192.168.1.138:8080/api/carts/${item.itemKey}`);
+      const response = await axios.delete(`http://172.20.10.5:8080/api/carts/${item.itemKey}`);
       console.log(response.data);
       setCartItems(prevItems => prevItems.filter(cartItem => cartItem.itemKey !== item.itemKey));
     } catch (error) {

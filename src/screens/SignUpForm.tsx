@@ -36,7 +36,7 @@ const SignUpForm = ({ route }) => {
 
       // Navigate based on user role
       if (isFournisseur) {
-        navigation.navigate('HomeScreenFournisseur');
+        navigation.navigate('DashFournisseur');
       } else {
         navigation.navigate('Welcome');
       }

@@ -18,7 +18,6 @@ const windowHeight = Dimensions.get('window').height;
 function HomeScreen({ navigation }) {
     const [loading, setLoading] = useState(true);
     const [categories, setCategories] = useState([]);
-    const [promotions, setPromotions] = useState([]);
     const [foods, setFoods] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [plats, setPlats] = useState([]);
@@ -27,6 +26,7 @@ function HomeScreen({ navigation }) {
     const [searchResults, setSearchResults] = useState([]);
     const [numberOfItemsInCart, setNumberOfItemsInCart] = useState(0);
     const [mostPurchasedPlats, setMostPurchasedPlats] = useState([]);
+    const [currentUser, setCurrentUser] = useState(null);
 
     const getUserData = async (userId) => {
         try {
@@ -39,6 +39,7 @@ function HomeScreen({ navigation }) {
 
     useEffect(() => {
         const unsubscribe = auth().onAuthStateChanged(async (user) => {
+            setCurrentUser(user);
             if (user) {
                 const userData = await getUserData(user.uid);
                 if (userData) {
@@ -71,34 +72,24 @@ function HomeScreen({ navigation }) {
     }, []);
 
     useEffect(() => {
-        const subscriber = firestore().collection("foods").onSnapshot((res) => {
-            const foods = [];
-            res.forEach(documentSnapshot => {
-                foods.push({
-                    ...documentSnapshot.data(),
-                    key: documentSnapshot.id,
-                });
-            });
-            setFoods(foods);
-        });
-        return () => subscriber();
-    }, []);
-
-    useEffect(() => {
-        const subscriber = firestore()
-            .collection('promotions')
+        const unsubscribe = firestore()
+            .collection('plats')
             .onSnapshot(querySnapshot => {
-                const promotions = [];
-                querySnapshot.forEach(documentSnapshot => {
-                    promotions.push({
-                        ...documentSnapshot.data(),
+                const plats = [];
+                querySnapshot.forEach(async documentSnapshot => {
+                    const platData = documentSnapshot.data();
+                    const fournisseurData = await getUserData(platData.fournisseurId);
+                    plats.push({
+                        ...platData,
                         key: documentSnapshot.id,
+                        fournisseur: fournisseurData ? fournisseurData.fullName : 'Unknown',
+                        fournisseurId: platData.fournisseurId,
                     });
                 });
-                setPromotions(promotions);
-                setLoading(false);
+                setPlats(plats);
             });
-        return () => subscriber();
+
+        return () => unsubscribe();
     }, []);
 
     const navigateToDashboard = () => {
@@ -114,8 +105,6 @@ function HomeScreen({ navigation }) {
     };
 
     useEffect(() => {
-        const currentUser = auth().currentUser;
-
         if (currentUser) {
             const userCartRef = firestore().collection('carts').where('userId', '==', currentUser.uid);
 
@@ -127,6 +116,10 @@ function HomeScreen({ navigation }) {
         } else {
             setNumberOfItemsInCart(0);
         }
+    }, [currentUser]);
+
+    useEffect(() => {
+        fetchMostPurchasedPlats();
     }, []);
 
     const fetchMostPurchasedPlats = async () => {
@@ -173,13 +166,13 @@ function HomeScreen({ navigation }) {
         }
     };
 
-    useEffect(() => {
-        fetchMostPurchasedPlats();
-    }, []);
+    const handleCategorySelect = (key) => {
+        setSelectedCategory(key);
+        getPlatsByCategory(key);
+    };
 
     const getPlatsByCategory = async (categoryId) => {
         try {
-            console.log("Fetching plats for category:", categoryId);
             const querySnapshot = await firestore()
                 .collection('plats')
                 .where('categoryId', '==', categoryId)
@@ -198,17 +191,10 @@ function HomeScreen({ navigation }) {
                 })
             );
 
-            console.log("Plats fetched for category:", categoryId, plats);
             setPlats(plats);
         } catch (error) {
             console.error('Error fetching plats by category:', error);
         }
-    };
-
-    const handleCategorySelect = (key) => {
-        console.log("Selected category:", key);
-        setSelectedCategory(key);
-        getPlatsByCategory(key);
     };
 
     if (loading) {
@@ -216,7 +202,6 @@ function HomeScreen({ navigation }) {
     }
 
     const handleSearch = (searchResults) => {
-        console.log('Search results:', searchResults);
         navigation.navigate('SearchResultsPage', { searchResults });
     };
 
@@ -291,25 +276,27 @@ function HomeScreen({ navigation }) {
                         showsHorizontalScrollIndicator={false}
                     />
                 </View>
-                <View style={{ marginTop: -68 }}>
-                    <MyText style={styles.text}> </MyText>
-                    <FlatList
-                        vertical
-                        data={plats}
-                        renderItem={({ item }) => (
-                            <FoodCardClient
-                                image={item.imageURL}
-                                title={item.title}
-                                price={item.price}
-                                fournisseur={item.fournisseur}
-                                fournisseurId={item.fournisseurId}
-                                itemKey={item.key}
-                                onPress={() => navigateToDetails(item)}
-                            />
-                        )}
-                        showsHorizontalScrollIndicator={false}
-                    />
-                </View>
+                {selectedCategory && (
+                    <View style={{ marginTop: -68 }}>
+                        <MyText style={styles.text}> </MyText>
+                        <FlatList
+                            vertical
+                            data={plats}
+                            renderItem={({ item }) => (
+                                <FoodCardClient
+                                    image={item.imageURL}
+                                    title={item.title}
+                                    price={item.price}
+                                    fournisseur={item.fournisseur}
+                                    fournisseurId={item.fournisseurId}
+                                    itemKey={item.key}
+                                    onPress={() => navigateToDetails(item)}
+                                />
+                            )}
+                            showsHorizontalScrollIndicator={false}
+                        />
+                    </View>
+                )}
                 {mostPurchasedPlats.length > 0 && (
                     <View style={styles.mostOrderedSection}>
                         <MyText style={styles.headerText}>Les plats les plus populaires</MyText>
@@ -384,8 +371,8 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
     },
-    mostOrderedSection:{
-    marginTop:-15,
+    mostOrderedSection: {
+        marginTop: -15,
     },
     modal: {
         backgroundColor: '#FFFFFF',

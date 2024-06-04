@@ -6,12 +6,19 @@ const PaymentSuccessScreen = ({ navigation }) => {
     navigation.navigate('Commandes');
   };
 
+  const handleReturnToHome = () => {
+    navigation.navigate('Welcome');
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Paiement réussi !</Text>
       <Text style={styles.subText}>Merci pour votre achat. Vous pouvez suivre votre commande.</Text>
       <TouchableOpacity style={styles.button} onPress={handleReturnToOrders}>
         <Text style={styles.buttonText}>Suivre votre commande</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={handleReturnToHome}>
+        <Text style={styles.buttonText}>Retourner à l'accueil</Text>
       </TouchableOpacity>
     </View>
   );
@@ -33,7 +40,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   subText: {
-    fontSize: 16,
+    fontSize: 19,
     color: 'gray',
     marginBottom: 30,
     textAlign: 'center',
@@ -43,6 +50,9 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 30,
+    marginBottom: 15,
+    width: '80%',
+    alignItems: 'center',
   },
   buttonText: {
     color: 'white',
