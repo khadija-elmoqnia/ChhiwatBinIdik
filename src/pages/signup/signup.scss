@@ -1,0 +1,71 @@
+.signup {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    background-color: #333; // Fond noir
+    color: #fff; // Texte blanc
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color:orangered; // Titre orange
+    }
+
+    .alert {
+      padding: 15px;
+      margin-bottom: 20px;
+      border: 1px solid orangered; /* Bordure orange */
+      border-radius: 5px;
+      background-color:black; /* Fond jaune */
+      color: orangered; /* Texte noir */
+  } 
+  
+  
+    form {
+      .form-group {
+        margin-bottom: 20px;
+  
+        label {
+          display: block;
+          margin-bottom: 5px;
+          color: #ff6600; // Texte orange
+          font-weight: bold;
+        }
+  
+        input[type='email'],
+        input[type='password'],
+        input[type='text'],
+        input[type='file'] {
+          width: 100%;
+          padding: 10px;
+          border: 1px solid #666; // Bordure grise
+          border-radius: 5px;
+          background-color: #444; // Fond gris foncé
+          color: #fff; // Texte blanc
+        }
+  
+        input[type='file'] {
+          cursor: pointer;
+        }
+      }
+  
+      button[type='submit'] {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        background-color: #ff6600; // Bouton orange
+        color: #fff; // Texte blanc
+        cursor: pointer;
+        transition: background-color 0.3s;
+  
+        &:hover {
+          background-color: #cc5500; // Bouton orange plus foncé au survol
+        }
+      }
+    }
+  }
+  

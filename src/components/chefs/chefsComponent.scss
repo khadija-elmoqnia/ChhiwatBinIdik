@@ -1,0 +1,95 @@
+.chefsComponent {
+    padding: 20px;
+
+    h2 {
+        margin-bottom: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        button {
+            margin-right: 5px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color:black;
+            background-color:orangered; /* Couleur orange pour les boutons */
+        }
+
+        button:hover {
+            background-color: darkorange; /* Couleur orange foncé au survol */
+        }
+
+        .view-button {
+            background-color: orangered;
+        }
+
+        .view-button:hover {
+            background-color: darkorange;
+        }
+
+        
+    }
+ 
+  
+.react-confirm-alert-overlay {
+    background-color: rgba(0, 0, 0, 0.5); /* Couleur de l'arrière-plan de l'overlay */
+  }
+  
+  .react-confirm-alert-body {
+    background-color: #ffffff; /* Couleur de fond de la boîte de l'alerte */
+    color: #333333; /* Couleur du texte de l'alerte */
+  }
+  
+  .react-confirm-alert-button-group {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .react-confirm-alert-button {
+    margin: 0 10px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .react-confirm-alert-button:hover {
+    background-color: orangered; /* Couleur de fond au survol du bouton */
+    color: #ffffff; /* Couleur du texte au survol du bouton */
+  }
+  /* Ajoutez ces styles à votre fichier chefsComponent.scss */
+
+/* Style pour le bouton Ajouter */
+.ajouter-button {
+    background-color:orangered; /* Couleur de fond orange */
+    color: white; /* Texte blanc */
+    padding: 10px 20px; /* Marge intérieure */
+    border: none; /* Pas de bordure */
+    border-radius: 5px; /* Coins arrondis */
+    cursor: pointer; /* Curseur au survol */
+    margin-bottom: 20px; /* Marge en bas pour l'espacement */
+  }
+  
+  /* Style pour le bouton Ajouter au survol */
+  .ajouter-button:hover {
+    background-color: darkorange; /* Couleur de fond orange plus foncée au survol */
+  }
+  
+}

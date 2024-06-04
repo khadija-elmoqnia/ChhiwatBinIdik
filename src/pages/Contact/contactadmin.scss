@@ -1,0 +1,41 @@
+.contact-admin {
+    background-color: #333; /* Fond noir */
+    color: #ff6600; /* Texte orange */
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.contact-admin h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.contact-admin ul {
+    list-style: none;
+    padding: 0;
+}
+
+.contact-admin li {
+    margin-bottom: 20px;
+    border: 1px solid #ff6600; /* Bordure orange */
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.contact-admin p {
+    margin: 5px 0;
+}
+
+/* Style pour chaque champ */
+.contact-admin p.label {
+    font-weight: bold;
+}
+
+.contact-admin p.email {
+    color: #00ccff; /* Couleur du texte pour l'email */
+}
+
+.contact-admin p.phone {
+    color: #66ff99; /* Couleur du texte pour le numéro de téléphone */
+}
